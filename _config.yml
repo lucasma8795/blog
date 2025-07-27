@@ -22,8 +22,9 @@ title: Lucas Ma
 email: khm39@cam.ac.uk
 description: >- # this means to ignore newlines until "baseurl:"
   Incoming 2nd year Computer Science undergraduate at the University of Cambridge.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+domain: lucasma8795.github.io
+url: https://lucasma8795.github.io # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: /
 github_username: lucasma8795
 
 # Build settings
@@ -42,7 +43,6 @@ feed:
 
 permalink: /:year/:month/:day/:title:output_ext
 
-baseurl: /
 
 markdown: kramdown
 highlighter: rouge
