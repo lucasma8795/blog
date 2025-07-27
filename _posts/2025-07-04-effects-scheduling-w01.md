@@ -5,6 +5,8 @@ date: 2025-07-04 09:00:00 +0100
 category: "ocaml-effects-scheduling"
 ---
 
+This is a series of blog posts documenting my progress for an internship at the University of Cambridge. This project explores the potential of using OCaml's effect handlers and domains in place of the current separate build system (dune, make) to self-schedule compilation of missing dependencies on-the-fly.
+
 My knowledge with functional programming, at this point, basically only came from the [CST 1A Foundations course](https://www.cl.cam.ac.uk/teaching/2425/FoundsCS/). To catch up, much of the first few days were spent studying the [OCaml effect handler](https://ocaml.org/manual/5.3/effects.html), and the rest were spent poking around in the OCaml compiler. Here is what I've picked up so far:
 
 ### Continuations
@@ -73,8 +75,7 @@ let () =
 
 Here, `match_with f v h` runs the computation `f v` in the given handler `h`, and handles the effect `Conversion_failure` when it is invoked (c.f. `try`/`with`).
 
-Effects are performed (invoked) with the `perform : 'a Effect.t -> 
-'a` primitive (c.f. `raise : exn -> 'a`), which hands over control flow to the corresponding delimiting effect handler, and the continuation `k` is resumed with the `continue : ('a, 'b) continuation -> 'a -> 'b` primitive. (The type `('a, 'b) continuation` can be mentally processed as `'a -> 'b` but used exclusively for effects, as far as I can tell.)
+Effects are performed (invoked) with the `perform : 'a Effect.t -> 'a` primitive (c.f. `raise : exn -> 'a`), which hands over control flow to the corresponding delimiting effect handler, and the continuation `k` is resumed with the `continue : ('a, 'b) continuation -> 'a -> 'b` primitive. (The type `('a, 'b) continuation` can be mentally processed as `'a -> 'b` but used exclusively for effects, as far as I can tell.)
 
 #### ...how is this type-checked?
 
@@ -107,7 +108,7 @@ let bar : 'a * 'b -> 'a = fun (x,y) -> x + y
 
 `bar` would have the type signature `int * int -> int`, i.e.: `'a` and `'b` are both refined into `int`. This is because in a module implementation, instead of having implicit universal quantifiers in the type signature as we would normally expect, the type checker interprets this as "there exists types `'a` and `'b` that satisfies the definition".
 
-To force it to take a polymorphic type signature, we declare the polymorphism explicitly, with
+To force it to take a polymorphic type signature, we declare the polymorphism explicitly, with:
 
 ```ocaml
 (* bar.ml *)
@@ -121,9 +122,9 @@ which now fails to compile, as expected.
 
 No. (I hope so!)
 
-OCaml delimited continuations are implemented on top of _fibers_: small runtime-managed, heap-allocated, dynamically resized call stacks. If we install two effect handlers corresponding to the two arrows, at the point of `perform` in `foo`, we have the following execution stack:
+OCaml delimited continuations are implemented on top of _fibers_: small runtime-managed, heap-allocated, dynamically resized call stacks. If we install two effect handlers (corresponding to the two arrows), just before doing a `perform` in `foo`, we have the following execution stack:
 
-```
+```text
 +-----+   +-----+   +-----+
 |     |   |     |   |     |
 | baz |<--| bar |<--| foo |
@@ -131,9 +132,9 @@ OCaml delimited continuations are implemented on top of _fibers_: small runtime-
 +-----+   +-----+   +-----+ <- stack_pointer
 ```
 
-Suppose that effect `F` is then being handled in `baz`. We then have the following program stack:
+Suppose that then the effect is performed and being handled in `baz`. We then have the following stack:
 
-```
+```text
 +-----+                   +-----+   +-----+
 |     |                   |     |   |     |   +-+
 | baz |                   | bar |<--| foo |<--|k|
@@ -145,7 +146,7 @@ The delimited continuation `k` here is an object on the heap that corresponds to
 
 ### So what is it that I'm doing?
 
-The original project proposal can be found [here](https://anil.recoil.org/ideas/effects-scheduling-ocaml-compiler).
+The original project proposal [can be found here](https://anil.recoil.org/ideas/effects-scheduling-ocaml-compiler).
 
 Currently, the compiler is built with an external build system [Make](https://en.wikipedia.org/wiki/Make_(software)). Compilation units naturally form a directed acyclic graph of (immediate) dependencies, and this is generated and saved in a text file `.depend`. In the Makefile, one can add dependencies to build rules, and thus the build system knows to launch a compiler instance for every compilation unit in dependency order.
 

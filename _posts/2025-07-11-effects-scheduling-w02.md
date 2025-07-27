@@ -5,11 +5,10 @@ date: 2025-07-11 09:00:00 +0100
 category: "ocaml-effects-scheduling"
 ---
 
-### Auto-compilation of missing dependencies
-
 Hours of refactoring and bug-fixing later, I was able to get the OCaml compiler to invoke itself in another process to compile a missing dependency, then resume the compilation process as usual.
 
 More specifically, consider the two `.ml` files below (and their corresponding `.mli` interface files, omitted):
+
 ```ocaml
 (* foo.ml *)
 let bar = 42
@@ -44,7 +43,7 @@ effc = fun (type c) (eff: c Effect.t) ->
 
 Invoking `./ocamlrun ./ocamlc -c program.ml -I ./stdlib`, we find a missing dependency, and `compile_dependency: filename -> filename` generates the following (hopefully, portable?) command to compile our dependency `foo.ml` (we inherit the load path from the calling parent):
 
-```
+```plaintext
 'runtime/ocamlrun' './ocamlc' '-c' 'foo.ml' '-I' './stdlib' '-I' ''
 ```
 
@@ -52,21 +51,23 @@ Invoking `./ocamlrun ./ocamlc -c program.ml -I ./stdlib`, we find a missing depe
 
 Linking the object files together, we then get
 
-```
+```text
 ➜ ocamlrun ocamlc foo.cmo program.cmo -I stdlib -o program
 ➜ ocamlrun ./program
 42
 ```
 
-as expected.
+as expected!
 
-Using the above, I was then able to trace through the Makefile and build `ocamlcommon.cma` and `ocamlbytecomp.cma`, first by building the required `.cmo` files (in no particular order, missing `.cmi` dependencies are auto-discovered and compiled), then linking the objects in dependency order (which is something I'd hope to be able to relax in the future). With this done, it is only two commands away to produce `ocamlc`, the OCaml bytecode compiler:
+Using the above, I was then able to trace through the Makefile and build `ocamlcommon.cma` and `ocamlbytecomp.cma`, first by building the required `.cmo` files (in no particular order, and missing `.cmi` dependencies are auto-discovered and compiled), then linking the objects in dependency order (which is something I'd hope to be able to relax in the future?). With this done, we are only two commands away to produce `ocamlc`, the OCaml [bytecode compiler](https://ocaml.org/manual/5.3/comp.html):
 
-```
+```text
 ocamlrun ocamlc -c driver/main.ml <compiler flags> <load path>
 ocamlrun ocamlc ocamlcommon.cma ocamlbytecomp.cma driver/main.cmo -o ocamlc <compiler flags> <load path>
 ```
 
-A slightly concerning issue that I can see coming: the [original](https://ocaml.org/manual/5.2/api/compilerlibref/Load_path.html) `Load_path` module makes the assumption that the contents of the load path don't change throughout the lifetime of the compiler process, and indeed the relevant pieces of code has been designed around this: file system calls are much much slower than simply reading from memory, and so the compiler reads in the filenames and caches them in memory. However we want newly compiled dependencies to be present in the load path as well to avoid compiling dependencies twice, and so the load path state now needs to be mutable!
+An issue that I can see coming: the [original](https://ocaml.org/manual/5.2/api/compilerlibref/Load_path.html) `Load_path` module makes the assumption that the contents of the load path don't change throughout the lifetime of the compiler process, and for a good reason: file system calls are much much slower than simply reading from memory, and so the compiler reads in the filenames and directories and caches them in memory. However, we want newly compiled dependencies to be present in the load path state to avoid compiling dependencies twice, and so it now needs to be mutable and synchronized across compiler instances.
+
+For now I've added file system calls to avoid overwriting existing `.cmi` and `.cmo` files (having to synchronize load path state across independent compiler *processes* sounds like a lot of pain), but this should be quite straightforward when I eventually transition over to using [domains](https://ocaml.org/manual/5.1/parallelism.html).
 
 The next step would be to work on building the rest of the targets that `make install` requires, more to come on this...

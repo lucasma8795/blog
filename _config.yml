@@ -30,7 +30,10 @@ github_username: lucasma8795
 theme: minima
 plugins:
   - jekyll-feed
-  # - jekyll-category-pages
+  - jekyll-regex-replace
+
+# Permalinks
+permalink: pretty
 
 # Atom Feed settings
 feed:
@@ -38,6 +41,15 @@ feed:
     - ocaml-effects-scheduling
 
 permalink: /:year/:month/:day/:title:output_ext
+
+baseurl: /
+
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
 
 # Exclude from processing.
 # The following items will not be processed, by default.
