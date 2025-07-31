@@ -58,7 +58,7 @@ let baz = [1; 2; 3; 4; 5]
 When we invoke our custom `ocamlc` to compile `{A,B,C}.ml` (in this order), what then should happen chronologically is:
 
 {% figure [caption:"Image 1: Effects-based parallel scheduling between compilation of three modules"] %}
-![Image 1]({{ "/public/images/effects_scheduling_1.jpeg" | absolute_url }})
+![Image 1]({{ "/public/images/effects_scheduling_1.jpeg" | relative_url }})
 {% endfigure %}
 
 1. `A.ml` starts compiling. One of its dependencies `C.mli` is missing, which is discovered by our effect handler after an effect is raised somewhere to locate `C.mli` in the load path. We launch a child process to compile `C.mli`, then move on immediately.
