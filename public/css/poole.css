@@ -59,7 +59,7 @@ html {
 }
 
 body {
-  color: #515151;
+  color: #313131;
   background-color: #fff;
   -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
@@ -84,7 +84,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: .75rem;
   font-weight: bold;
   line-height: 1.25;
-  color: #313131;
+  color: #303030;
   text-rendering: optimizeLegibility;
 }
 h1 {
@@ -164,7 +164,7 @@ pre {
   margin-top: 0;
   margin-bottom: 1rem;
   padding: 1rem;
-  font-size: .75rem;
+  font-size: 80%;
   line-height: 1.45;
   white-space: pre;
   overflow-x: scroll;
@@ -225,11 +225,36 @@ blockquote p:last-child {
   }
 }
 
+/* Images */
+
 img {
   display: block;
   max-width: 100%;
   margin: 0 0 1rem;
   border-radius: 5px;
+}
+
+/* Figures */
+figure {
+  width: 80%;
+  margin: auto;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+figure img {
+  margin: 0 0 0.7rem;
+}
+
+figure figcaption {
+  text-align: center;
+  font-size: 87.5%;
+}
+
+/* Footnotes */
+.footnotes {
+  color: #7a7a7a;
+  font-size: 87.5%;
 }
 
 /* Tables */

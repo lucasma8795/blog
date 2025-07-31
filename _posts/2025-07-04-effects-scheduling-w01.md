@@ -5,7 +5,7 @@ date: 2025-07-04 09:00:00 +0100
 category: "ocaml-effects-scheduling"
 ---
 
-This is a series of blog posts documenting my progress for an internship at the University of Cambridge. This project explores the potential of using OCaml's effect handlers and domains in place of the current separate build system (dune, make) to self-schedule compilation of missing dependencies on-the-fly.
+This is a series of blog posts documenting my progress for an internship at the University of Cambridge. This project explores the potential of using OCaml's [effect handlers](https://ocaml.org/manual/5.3/effects.html) and [domains](https://ocaml.org/manual/5.3/parallelism.html) in place of the current separate build system (dune, make) to self-schedule compilation of missing dependencies on-the-fly.
 
 My knowledge with functional programming, at this point, basically only came from the [CST 1A Foundations course](https://www.cl.cam.ac.uk/teaching/2425/FoundsCS/). To catch up, much of the first few days were spent studying the [OCaml effect handler](https://ocaml.org/manual/5.3/effects.html), and the rest were spent poking around in the OCaml compiler. Here is what I've picked up so far:
 

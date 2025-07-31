@@ -7,7 +7,7 @@ layout: default
   <span class="post-date">
     {{ page.date | date_to_string }}
     &#8226;
-    {{ content | strip_html | replace_regex: '\s+', '' | size | divided_by: 1000.0 | round }} min read
+    {{ page.content | strip_html | replace_regex: '\s+', '' | size | divided_by: 1000.0 | round }} min read
   </span>
   {{ content }}
 </div>

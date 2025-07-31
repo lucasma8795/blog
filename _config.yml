@@ -32,6 +32,7 @@ theme: minima
 plugins:
   - jekyll-feed
   - jekyll-regex-replace
+  - jekyll-figure
 
 # Permalinks
 permalink: pretty
@@ -43,13 +44,15 @@ feed:
 
 permalink: /:year/:month/:day/:title:output_ext
 
-
 markdown: kramdown
 highlighter: rouge
 
 kramdown:
   input: GFM
   syntax_highlighter: rouge
+
+jekyll-figure:
+  paragraphs: false
 
 # Exclude from processing.
 # The following items will not be processed, by default.

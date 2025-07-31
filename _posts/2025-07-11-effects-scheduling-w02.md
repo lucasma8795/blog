@@ -59,7 +59,7 @@ Linking the object files together, we then get
 
 as expected!
 
-Using the above, I was then able to trace through the Makefile and build `ocamlcommon.cma` and `ocamlbytecomp.cma`, first by building the required `.cmo` files (in no particular order, and missing `.cmi` dependencies are auto-discovered and compiled), then linking the objects in dependency order (which is something I'd hope to be able to relax in the future?). With this done, we are only two commands away to produce `ocamlc`, the OCaml [bytecode compiler](https://ocaml.org/manual/5.3/comp.html):
+Using the above, I was then able to trace through the Makefile and build `ocamlcommon.cma` and `ocamlbytecomp.cma`, first by building the required `.cmo` files (in no particular order, and missing `.cmi` dependencies are auto-discovered and compiled), then linking the objects in dependency order (which is something I'd hope to be able to relax in the future? [^1]). With this done, we are only two commands away to produce `ocamlc`, the OCaml [bytecode compiler](https://ocaml.org/manual/5.3/comp.html):
 
 ```text
 ocamlrun ocamlc -c driver/main.ml <compiler flags> <load path>
@@ -71,3 +71,5 @@ An issue that I can see coming: the [original](https://ocaml.org/manual/5.2/api/
 For now I've added file system calls to avoid overwriting existing `.cmi` and `.cmo` files (having to synchronize load path state across independent compiler *processes* sounds like a lot of pain), but this should be quite straightforward when I eventually transition over to using [domains](https://ocaml.org/manual/5.1/parallelism.html).
 
 The next step would be to work on building the rest of the targets that `make install` requires, more to come on this...
+
+[^1]: Week 5 Lucas here, turns out this was not possible! The initialization order of modules is the order of which they are linked. This is a [total order](https://en.wikipedia.org/wiki/Total_order) of the modules that respects the dependency graph, but notice that this is not unique, so in general the link order is not a function of the program text. Arbitrarily picking a valid total order also doesn't work, suppose we had some global state in `A`, with `B` and `C` both trying to read and modify that global state, then the program behaviour would depend on the link order.
