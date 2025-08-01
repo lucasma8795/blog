@@ -69,7 +69,7 @@ let find_same_module id tbl =
 
 At this point I had realized that `B` was being opened successfully in `A`, going through the `Mod_persistent` code path above, but somehow `C` kept on raising `Not_found` here no matter what I did, and this was quite suspicious as their behaviour should be virtually identical. The first predicate in line 5 couldn't have been the issue, so it must have been the second that was failing. `Current_unit.Name` sounds like some mutable global state, and surely something as simple as that that must have been captured by `Local_store`.
 
-It wasn't! So when we resumed compilation of `A` (in step 5), the compiler thinks it's in `C`, and it makes sense that it couldn't find `C`, because it thinks we are already in the module `C`. The fix was:
+It wasn't! So when we resumed compilation of `A` (in step 10), the compiler thinks it's in `C`, and it makes sense that it couldn't find `C`, because it thinks we are already in the module `C`. The fix was:
 
 ```diff
 - let current_unit : Unit_info.t option ref = ref None
