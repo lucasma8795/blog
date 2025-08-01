@@ -24,8 +24,6 @@ This is huge news, because all the missing dependencies would have already been 
 let suspended_tasks = Queue.create ()
 type _ Effect.t += Load_path : string -> string Effect.t
 
-fresh () |> ignore (* snapshot the initial global state *)
-
 (* start compilation of all .ml files *)
 List.iter (fun ml_file ->
   let store = fresh ();
