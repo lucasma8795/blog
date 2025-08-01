@@ -28,14 +28,14 @@ fresh () |> ignore (* snapshot the initial global state *)
 
 (* start compilation of all .ml files *)
 List.iter (fun ml_file ->
-  match compile ml_file with
+  let store = fresh ();
+  match with_store store (fun () -> compile ml_file) with
   | () -> () (* file compiled successfully *)
   | effect (Load_path dep), cont -> (* dep will be a .cmi file *)
       begin try
         continue cont (resolve_full_filename dep)
       with Not_found ->
         (* we hit a missing dependency, suspend the task *)
-        let store = fresh () in
         let full_mli_file = find_interface_source dep in
         let dep = (remove_suffix mli_file ".mli") ^ ".cmi" in
         let pid = compile_process_parallel full_mli_file in
